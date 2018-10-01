@@ -22,11 +22,11 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
-        <module name="Report generator" />
+        <module name="report-generator" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="Report generator" target="1.7" />
+      <module name="report-generator" target="1.7" />
     </bytecodeTargetLevel>
   </component>
 </project>

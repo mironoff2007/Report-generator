@@ -11,16 +11,16 @@ public class SourceData {
 
     String[] split;
 
-    public void readSourceData(){
+    public void readSourceData(ArrayList<Column> columnsList,String path){
         String line;
         columns=new ArrayList<>();
         try {
-            BufferedReader buf = new BufferedReader(new InputStreamReader(new FileInputStream("task/source-data.tsv"),"UTF-16"));
-            line=buf.readLine();
-            split=line.split("\t");
-            for(int i=0;i<split.length;i++){
+            BufferedReader buf = new BufferedReader(new InputStreamReader(new FileInputStream(path),"UTF-16"));
+
+
+            for(int i=0;i<columnsList.size();i++){
                 columns.add(new ArrayList<String>());
-                columns.get(i).add(split[i]);
+                columns.get(i).add(columnsList.get(i).title);
             }
             while((line=buf.readLine())!=null){
 

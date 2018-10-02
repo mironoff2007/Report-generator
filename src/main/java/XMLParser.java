@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.List;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
@@ -10,7 +9,7 @@ public class XMLParser {
 
     SAXHandler handler;
 
-    public List<Column> getColumnList() {
+    public ArrayList<Column> getColumnList() {
         return columnList;
     }
 
@@ -18,7 +17,7 @@ public class XMLParser {
         return page;
     }
 
-    List<Column> columnList;
+    ArrayList<Column> columnList;
     Page page;
     public void start() throws Exception {
         SAXParserFactory parserFactor = SAXParserFactory.newInstance();
@@ -38,7 +37,7 @@ public class XMLParser {
  */
 class SAXHandler extends DefaultHandler {
 
-    List<Column> colList = new ArrayList<Column>();
+    ArrayList<Column> colList = new ArrayList<Column>();
 
     boolean isPage=false;
     Column col = null;

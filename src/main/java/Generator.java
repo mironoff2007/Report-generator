@@ -1,11 +1,11 @@
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Created by Jura on 30.09.2018.
  */
 public class Generator {
 
-    List<Column> colList;
+    ArrayList<Column> colList;
     Page page;
     XMLParser parser;
     public Generator()
@@ -25,6 +25,10 @@ public class Generator {
             totalWidth=col.width+totalWidth;
         }
         System.out.println(totalWidth);
+        //Add title to Source data
+        SourceData data=new SourceData();
+        data.readSourceData( colList,"task/source-data.tsv");
+        new ReportWriter().writeReport(colList,data.getColumns());
 
     }
 

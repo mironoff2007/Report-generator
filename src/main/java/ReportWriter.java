@@ -18,40 +18,52 @@ public class ReportWriter {
     int cLines;
 
     boolean addRow;
-    ArrayList< ArrayList<String>> addLine= new ArrayList<>();
+    ArrayList< ArrayList<StringBuilder>> rows= new ArrayList<>();
+    ArrayList<StringBuilder> row= new ArrayList<>();
+
     ArrayList<String> titleList = new ArrayList<>();
 
     public void writeReport( ArrayList<Column> colList,ArrayList<ArrayList<String>> writeList){
 
-        int rows=writeList.get(0).size();
+        int rowsNumber=writeList.get(0).size();
         int columns=writeList.size();
 
-        for(int r=0;r<rows;r++)
+        for(int r=0;r<rowsNumber;r++)
         {
 
             for(int c=0;c<columns;c++)
             {
-                stringBuild.append("| ");
-                cellStBuild.append("| ");
-                lineLength=lineLength+2;
-                cell=writeList.get(c).get(r);
-                columnWidth=colList.get(c).width;
-
-
-                stringBuild.append(cell+" ");
-
-                lineLength=lineLength+colList.get(c).width;
-                while(stringBuild.length()<lineLength){
-                    stringBuild.append(" ");
-
-                }
+                row.add(new StringBuilder(writeList.get(c).get(r)));
             }
-            stringBuild.append("|");
-            System.out.println(stringBuild.toString());
+            rows.add(row);
+            int colNumb=0;
+            for (ArrayList<StringBuilder>correntRow:rows ){
+                for (StringBuilder currentCell: correntRow) {
+                    stringBuild.append("| ");
+                    cellStBuild.append("| ");
+                    lineLength = lineLength + 2;
+                    cell = currentCell.toString();
+                    columnWidth = colList.get(colNumb).width;
 
 
-            stringBuild.setLength(0);
-            lineLength=0;
+                    stringBuild.append(cell + " ");
+
+                    lineLength = lineLength + colList.get(colNumb).width;
+                    while (stringBuild.length() < lineLength) {
+                        stringBuild.append(" ");
+                    }
+                    colNumb++;
+                }
+                    stringBuild.append("|");
+                    System.out.println(stringBuild.toString());
+
+
+                    stringBuild.setLength(0);
+                    lineLength=0;
+            }
+            rows=new ArrayList<>();
+            row=new ArrayList<>();
+
         }
     }
 }

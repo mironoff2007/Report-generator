@@ -8,6 +8,7 @@ public class ReportWriter {
     String cell;
     StringBuilder stringBuild=new StringBuilder();
     StringBuilder cellStBuild=new StringBuilder();
+    StringBuilder cellEnd=new StringBuilder();
 
     int pageWidth;
     int pageHeight;
@@ -17,9 +18,10 @@ public class ReportWriter {
 
     int cLines;
 
-    boolean addRow;
+
     ArrayList< ArrayList<StringBuilder>> rows= new ArrayList<>();
     ArrayList<StringBuilder> row= new ArrayList<>();
+    ArrayList<StringBuilder> addRow= new ArrayList<>();
 
     ArrayList<String> titleList = new ArrayList<>();
 
@@ -35,12 +37,55 @@ public class ReportWriter {
             {
                 row.add(new StringBuilder(writeList.get(c).get(r)));
             }
-            rows.add(row);
-            int colNumb=0;
-            for (ArrayList<StringBuilder>correntRow:rows ){
+            //split
+            boolean splitted=false;
+            while(!splitted)
+            {
+                int colNumb=0;
+                for(int cellNumb=0;cellNumb<row.size();cellNumb++){
+                StringBuilder currentCell=row.get(cellNumb);
+                    int colW=colList.get(colNumb).width;
+                    if(currentCell.length()>colW) {
+                        int ind=0;
+                        while (ind<currentCell.length() ) {
+                            if(Character.isLetter(currentCell.charAt(ind)) && ind <colW){
+                            cellStBuild.append(currentCell.charAt(ind));}
+                            else{
+                                if(!(currentCell.charAt(ind)==' ') ){
+                                cellEnd.append(currentCell.charAt(ind));}
+                            }
+                            ind++;
+                        }
+                        addRow.add(new StringBuilder(cellStBuild));
+                        cellStBuild.setLength(0);
+                        //row set cell -cellStBuild
+                        row.set(cellNumb,new StringBuilder(cellEnd));
+                        cellEnd.setLength(0);
+
+                    }
+                    else{
+                        addRow.add(new StringBuilder(currentCell.toString()));
+                        //row set cell ""
+                        row.set(cellNumb,new StringBuilder(""));
+                    }
+                    colNumb++;
+                }
+                rows.add(addRow);
+                addRow=new ArrayList<>();
+                int emptyStrings=0;
+                for (StringBuilder currentCell: row){
+                    if(currentCell.length()==0){emptyStrings++;}
+                }
+                if (emptyStrings==row.size()){splitted=true;}
+            }
+            //
+
+
+            for (ArrayList<StringBuilder>correntRow:rows )
+            {
+                int colNumb=0;
                 for (StringBuilder currentCell: correntRow) {
                     stringBuild.append("| ");
-                    cellStBuild.append("| ");
                     lineLength = lineLength + 2;
                     cell = currentCell.toString();
                     columnWidth = colList.get(colNumb).width;
@@ -48,7 +93,7 @@ public class ReportWriter {
 
                     stringBuild.append(cell + " ");
 
-                    lineLength = lineLength + colList.get(colNumb).width;
+                    lineLength = lineLength+1 + colList.get(colNumb).width;
                     while (stringBuild.length() < lineLength) {
                         stringBuild.append(" ");
                     }
@@ -61,8 +106,8 @@ public class ReportWriter {
                     stringBuild.setLength(0);
                     lineLength=0;
             }
-            rows=new ArrayList<>();
-            row=new ArrayList<>();
+            rows.clear();
+            row.clear();
 
         }
     }

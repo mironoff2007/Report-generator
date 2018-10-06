@@ -24,11 +24,10 @@ public class Generator {
         for ( Column col : colList){
             totalWidth=col.width+totalWidth;
         }
-        System.out.println(totalWidth);
-        //Add title to Source data
+
         SourceData data=new SourceData();
         data.readSourceData( colList,"task/source-data.tsv");
-        new ReportWriter().writeReport(colList,data.getColumns());
+        new ReportWriter(page.height,page.width).writeReport(colList,data.getColumns());
 
     }
 

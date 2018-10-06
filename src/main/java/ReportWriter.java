@@ -16,99 +16,128 @@ public class ReportWriter {
     int columnWidth;
     int lineLength;
 
-    int cLines;
+    int linesCount;
 
+    public ReportWriter(int height,int width){
+        this.pageHeight=height;
+        this.pageWidth=width;
+    }
 
-    ArrayList< ArrayList<StringBuilder>> rows= new ArrayList<>();
+    ArrayList<ArrayList<StringBuilder>> rowsList= new ArrayList<>();
     ArrayList<StringBuilder> row= new ArrayList<>();
     ArrayList<StringBuilder> addRow= new ArrayList<>();
 
-    ArrayList<String> titleList = new ArrayList<>();
-
     public void writeReport( ArrayList<Column> colList,ArrayList<ArrayList<String>> writeList){
 
-        int rowsNumber=writeList.get(0).size();
+        int rows=writeList.get(0).size();
         int columns=writeList.size();
-
-        for(int r=0;r<rowsNumber;r++)
+        linesCount=0;
+        for(int r=0;r<rows;r++)
         {
 
-            for(int c=0;c<columns;c++)
-            {
-                row.add(new StringBuilder(writeList.get(c).get(r)));
-            }
-            //split
+
+            for(int c=0;c<columns;c++) { row.add(new StringBuilder(writeList.get(c).get(r))); }
             boolean splitted=false;
-            while(!splitted)
-            {
-                int colNumb=0;
-                for(int cellNumb=0;cellNumb<row.size();cellNumb++){
-                StringBuilder currentCell=row.get(cellNumb);
-                    int colW=colList.get(colNumb).width;
-                    if(currentCell.length()>colW) {
-                        int ind=0;
-                        while (ind<currentCell.length() ) {
-                            if(Character.isLetter(currentCell.charAt(ind)) && ind <colW){
-                            cellStBuild.append(currentCell.charAt(ind));}
-                            else{
-                                if(!(currentCell.charAt(ind)==' ') ){
-                                cellEnd.append(currentCell.charAt(ind));}
+
+            while(!splitted){
+                for(int c=0;c<columns;c++) {
+                    cell = row.get(c).toString();
+                    columnWidth = colList.get(c).width;
+                    if (cell.length() > columnWidth) {
+                        String []splt=cell.split("[^а-яА-Яa-zA-Z0-9]");//
+                        char simbol=' ';
+                        boolean isSpace=false;
+                        int freeChars;
+                        for(int i=0;i<splt.length;i++){
+                            cellStBuild=new StringBuilder(splt[i]);
+
+                            if(i>0){simbol=cell.charAt(cell.indexOf(cellStBuild.toString())-1);
+                                cellStBuild.insert(0,simbol);}
+
+                            isSpace=simbol==' '?true:false;
+
+                            if((cellStBuild.length()+stringBuild.length())<=columnWidth){
+                                stringBuild.append(cellStBuild);
                             }
-                            ind++;
+                            else{
+                                if(cellStBuild.charAt(0)==' '&&(cellEnd.length()==0)) { cellStBuild.delete(0,1);;}
+                                if(cellStBuild.length()<=columnWidth) {
+                                    cellEnd.append(cellStBuild); }
+                                else{
+                                    freeChars=(columnWidth-stringBuild.length())>0?(columnWidth-stringBuild.length()):0;
+                                    freeChars =  freeChars==1 ? 0 : freeChars;stringBuild.append(cellStBuild.substring(0,freeChars));
+                                    cellEnd.append(cellStBuild.substring(freeChars,cellStBuild.length()));
+
+                                }
+                            }
                         }
-                        addRow.add(new StringBuilder(cellStBuild));
-                        cellStBuild.setLength(0);
-                        //row set cell -cellStBuild
-                        row.set(cellNumb,new StringBuilder(cellEnd));
+                        addRow.add(new StringBuilder(stringBuild));
+                        row.set(c,new StringBuilder(cellEnd));
+                        stringBuild.setLength(0);
                         cellEnd.setLength(0);
 
                     }
-                    else{
-                        addRow.add(new StringBuilder(currentCell.toString()));
-                        //row set cell ""
-                        row.set(cellNumb,new StringBuilder(""));
+                    else {
+                        addRow.add(new StringBuilder(cell));
+                        row.set(c,new StringBuilder());
                     }
-                    colNumb++;
                 }
-                rows.add(addRow);
-                addRow=new ArrayList<>();
-                int emptyStrings=0;
-                for (StringBuilder currentCell: row){
-                    if(currentCell.length()==0){emptyStrings++;}
+
+                //count
+                int emptyCells=0;
+                for(int c=0;c<columns;c++) {
+                    if(row.get(c).length()==0){emptyCells++;}
                 }
-                if (emptyStrings==row.size()){splitted=true;}
+                if(emptyCells==row.size()){splitted=true;}
+                rowsList.add(new ArrayList<>(addRow));
+                addRow.clear();
             }
+
+
+            addRow.clear();
+            row.clear();
+            stringBuild.setLength(0);
             //
-
-
-            for (ArrayList<StringBuilder>correntRow:rows )
+            for(int rNumber=0;rNumber<rowsList.size();rNumber++)
             {
-                int colNumb=0;
-                for (StringBuilder currentCell: correntRow) {
+                row=rowsList.get(rNumber);
+                lineLength=0;
+                for(int cellNumb=0;cellNumb<row.size();cellNumb++)
+                {
                     stringBuild.append("| ");
-                    lineLength = lineLength + 2;
-                    cell = currentCell.toString();
-                    columnWidth = colList.get(colNumb).width;
+                    lineLength=lineLength+2;
+                    cell=row.get(cellNumb).toString();
+                    columnWidth=colList.get(cellNumb).width;
+                    stringBuild.append(cell);
 
-
-                    stringBuild.append(cell + " ");
-
-                    lineLength = lineLength+1 + colList.get(colNumb).width;
-                    while (stringBuild.length() < lineLength) {
+                    lineLength=lineLength+colList.get(cellNumb).width;
+                    while(stringBuild.length()<lineLength){
                         stringBuild.append(" ");
                     }
-                    colNumb++;
+                    stringBuild.append(" ");
+                    lineLength=lineLength+1;
                 }
-                    stringBuild.append("|");
-                    System.out.println(stringBuild.toString());
+                stringBuild.append("|");
 
 
-                    stringBuild.setLength(0);
-                    lineLength=0;
+                System.out.println(stringBuild.toString());
+                linesCount++;
+
+
+                stringBuild.setLength(0);
+
             }
-            rows.clear();
+
+            for(int i=0;i<lineLength;i++){
+                stringBuild.append("-");
+            }
+            System.out.println(stringBuild.toString());
+            linesCount++;
+            rowsList.clear();
             row.clear();
+            stringBuild.setLength(0);
 
         }
     }
+
 }

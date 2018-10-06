@@ -16,6 +16,13 @@ public class ReportWriter {
     int columnWidth;
     int lineLength;
 
+    int linesCount;
+
+    public ReportWriter(int height,int width){
+        this.pageHeight=height;
+        this.pageWidth=width;
+    }
+
     ArrayList<ArrayList<StringBuilder>> rowsList= new ArrayList<>();
     ArrayList<StringBuilder> row= new ArrayList<>();
     ArrayList<StringBuilder> addRow= new ArrayList<>();
@@ -24,9 +31,10 @@ public class ReportWriter {
 
         int rows=writeList.get(0).size();
         int columns=writeList.size();
-
+        linesCount=0;
         for(int r=0;r<rows;r++)
         {
+
 
             for(int c=0;c<columns;c++) { row.add(new StringBuilder(writeList.get(c).get(r))); }
             boolean splitted=false;
@@ -93,6 +101,7 @@ public class ReportWriter {
             for(int rNumber=0;rNumber<rowsList.size();rNumber++)
             {
                 row=rowsList.get(rNumber);
+                lineLength=0;
                 for(int cellNumb=0;cellNumb<row.size();cellNumb++)
                 {
                     stringBuild.append("| ");
@@ -110,12 +119,20 @@ public class ReportWriter {
                 }
                 stringBuild.append("|");
 
+
                 System.out.println(stringBuild.toString());
+                linesCount++;
 
 
                 stringBuild.setLength(0);
-                lineLength=0;
+
             }
+
+            for(int i=0;i<lineLength;i++){
+                stringBuild.append("-");
+            }
+            System.out.println(stringBuild.toString());
+            linesCount++;
             rowsList.clear();
             row.clear();
             stringBuild.setLength(0);

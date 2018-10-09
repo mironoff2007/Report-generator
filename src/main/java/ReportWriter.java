@@ -4,7 +4,7 @@ import java.util.ArrayList;
  * Created by Юрий on 01.10.2018.
  */
 public class ReportWriter {
-    String line;
+
     String cell;
     StringBuilder stringBuild=new StringBuilder();
     StringBuilder cellStBuild=new StringBuilder();
@@ -46,30 +46,52 @@ public class ReportWriter {
                     if (cell.length() > columnWidth) {
                         String []splt=cell.split("[^а-яА-Яa-zA-Z0-9]");//
                         char simbol=' ';
-                        boolean isSpace=false;
+                        //
                         int freeChars;
                         for(int i=0;i<splt.length;i++){
                             cellStBuild=new StringBuilder(splt[i]);
-
-                            if(i>0){simbol=cell.charAt(cell.indexOf(cellStBuild.toString())-1);
-                                cellStBuild.insert(0,simbol);}
-
-                            isSpace=simbol==' '?true:false;
-
-                            if((cellStBuild.length()+stringBuild.length())<=columnWidth){
-                                stringBuild.append(cellStBuild);
-                            }
-                            else{
-                                if(cellStBuild.charAt(0)==' '&&(cellEnd.length()==0)) { cellStBuild.delete(0,1);;}
-                                if(cellStBuild.length()<=columnWidth) {
-                                    cellEnd.append(cellStBuild); }
-                                else{
-                                    freeChars=(columnWidth-stringBuild.length())>0?(columnWidth-stringBuild.length()):0;
-                                    freeChars =  freeChars==1 ? 0 : freeChars;stringBuild.append(cellStBuild.substring(0,freeChars));
-                                    cellEnd.append(cellStBuild.substring(freeChars,cellStBuild.length()));
-
+                                //get delimiter
+                                if (i > 0) {
+                                    simbol = cell.charAt(cell.indexOf(cellStBuild.toString()) - 1);
+                                    cellStBuild.insert(0, simbol);
                                 }
-                            }
+                                if(i<2) {
+                                    if ((stringBuild.length() + 1) == columnWidth) {
+                                        stringBuild.append(simbol);
+                                        cellStBuild.delete(0, 1);
+                                    }
+                                    //next word fits cell or not without delimiter
+                                    if ((stringBuild.length() + cellStBuild.length()) <= columnWidth) {
+                                        if (cellStBuild.length() <= columnWidth) {
+                                            stringBuild.append(cellStBuild);
+                                        }
+                                    } else {//next word do not fits cell
+                                        //next word fits next cell or not
+                                        if (cellStBuild.length() <= columnWidth) {
+                                            if (cellStBuild.length() != 0 && cellStBuild.charAt(0) == ' ') {
+                                                cellStBuild.delete(0, 1);
+                                            }
+                                            cellEnd.append(cellStBuild);
+                                        } else {
+
+                                            //free space at next cell
+                                            freeChars = (columnWidth - stringBuild.length()) > 0 ? (columnWidth - stringBuild.length()) : 0;
+                                            freeChars = freeChars < 3 ? 0 : freeChars;
+                                            if (freeChars == 0 && simbol == ' ') {
+                                                cellStBuild.delete(0, 1);
+                                            }
+                                            //write to cell chars that fits
+                                            stringBuild.append(cellStBuild.substring(0, freeChars));
+                                            //write remaining chars for next iteration
+                                            cellEnd.append(cellStBuild.substring(freeChars, cellStBuild.length()));
+
+                                        }
+                                    }
+                                    //
+                                }
+                                else{
+                                    cellEnd.append(cellStBuild);
+                                }
                         }
                         addRow.add(new StringBuilder(stringBuild));
                         row.set(c,new StringBuilder(cellEnd));
@@ -97,6 +119,7 @@ public class ReportWriter {
             addRow.clear();
             row.clear();
             stringBuild.setLength(0);
+
             //
             for(int rNumber=0;rNumber<rowsList.size();rNumber++)
             {
@@ -120,19 +143,68 @@ public class ReportWriter {
                 stringBuild.append("|");
 
 
-                System.out.println(stringBuild.toString());
-                linesCount++;
+
+
+                for (int i=stringBuild.length();i<pageWidth;i++){
+                    stringBuild.append(" ");
+                }
+
+                if(linesCount==pageHeight){
+                    System.out.println("~");
+
+                    linesCount=0;
+                    cellEnd.append("|");
+                    lineLength=0;
+                    //Add title to StringBuilder
+                    for(int c =0;c<colList.size();c++) {
+                        cellEnd.append(" ");
+                        lineLength++;
+                        cellEnd.append(colList.get(c).title);
+                        lineLength = lineLength+colList.get(c).width;
+
+                        for (int s = cellEnd.length(); s <=lineLength; s++) {
+                            cellEnd.append(" ");
+                        }
+                        cellEnd.append(" |");
+                        lineLength=lineLength+2;
+                    }
+                    //page width
+
+                    System.out.println(cellEnd.toString());
+                    cellEnd.setLength(0);
+                    //row delimiter
+                    for(int i=0;i<=lineLength;i++){
+                        cellEnd.append("-");
+                    }
+                    for (int i=cellEnd.length();i<pageWidth;i++){
+                        cellEnd.append(" ");
+                    }
+                    System.out.println(cellEnd.toString());
+                    linesCount++;
+                    cellEnd.setLength(0);
+
+                    System.out.println(stringBuild.toString());
+                    linesCount++;
+
+                }
+                else {
+                    System.out.println(stringBuild.toString());
+                    stringBuild.setLength(0);
+                    linesCount++;
+                }
 
 
                 stringBuild.setLength(0);
 
             }
 
-            for(int i=0;i<lineLength;i++){
+            //row delimiter
+            for(int i=0;i<=lineLength;i++){
                 stringBuild.append("-");
             }
             System.out.println(stringBuild.toString());
             linesCount++;
+
             rowsList.clear();
             row.clear();
             stringBuild.setLength(0);

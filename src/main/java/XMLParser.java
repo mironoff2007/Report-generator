@@ -1,3 +1,4 @@
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -7,7 +8,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class XMLParser {
 
-    SAXHandler handler;
+    private SAXHandler handler;
 
     public ArrayList<Column> getColumnList() {
         return columnList;
@@ -19,12 +20,17 @@ public class XMLParser {
 
     ArrayList<Column> columnList;
     Page page;
-    public void start() throws Exception {
+    public void start(String path) throws Exception {
         SAXParserFactory parserFactor = SAXParserFactory.newInstance();
         SAXParser parser = parserFactor.newSAXParser();
         SAXHandler handler = new SAXHandler();
-        parser.parse(ClassLoader.getSystemResourceAsStream("settings.xml"),
-                handler);
+        try {
+            parser.parse(new FileInputStream(path),
+                    handler);
+        }
+        catch (IllegalArgumentException e){
+            System.out.println("settings file not found");
+            e.printStackTrace();}
         page=handler.page;
         columnList=handler.colList;
 
@@ -37,7 +43,7 @@ public class XMLParser {
  */
 class SAXHandler extends DefaultHandler {
 
-    ArrayList<Column> colList = new ArrayList<Column>();
+    ArrayList<Column> colList = new ArrayList<>();
 
     boolean isPage=false;
     Column col = null;
@@ -48,11 +54,12 @@ class SAXHandler extends DefaultHandler {
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         switch(qName)
         {
-            //Create a new colloyee object when the start tag is found
+            //Create a new column object when the start tag is found
             case "column":
                 col = new Column();
                 isPage=false;
                 break;
+            //Create a new page object when the start tag is found
             case "page":
                 page = new Page();
                 isPage=true;
@@ -70,7 +77,7 @@ class SAXHandler extends DefaultHandler {
             case "page":
 
                 break;
-            //For all other end tags the column has to be updated.
+            //For all other end tags
             case "width":
                 if(isPage){page.width=Integer.parseInt(content);}
                 else{col.width = Integer.parseInt(content);}

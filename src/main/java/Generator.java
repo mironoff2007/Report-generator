@@ -1,18 +1,19 @@
 import java.util.ArrayList;
 
-/**
- * Created by Jura on 30.09.2018.
- */
 public class Generator {
 
-    ArrayList<Column> colList;
-    Page page;
-    XMLParser parser;
-    public Generator()
+    private ArrayList<Column> colList;
+    private Page page;
+    private XMLParser parser;
+
+
+    public Generator(String settingsName, String sourceName,String reportName)
     {
+        String workingDir = System.getProperty("user.dir");
+        //workingDir="D:\\";
         try {
             parser = new XMLParser();
-            parser.start();
+            parser.start(workingDir+"\\"+settingsName);
             page=parser.getPage();
             colList=parser.getColumnList();
 
@@ -26,8 +27,10 @@ public class Generator {
         }
 
         SourceData data=new SourceData();
-        data.readSourceData( colList,"task/source-data.tsv");
-        new ReportWriter(page.height,page.width).writeReport(colList,data.getColumns());
+        data.readSourceData( colList,workingDir+"\\"+sourceName);
+        ReportWriter reportWriter = new ReportWriter(page.height,page.width,reportName);
+        reportWriter.setPath(workingDir);
+        reportWriter.writeReport(colList,data.getColumns());
 
     }
 
